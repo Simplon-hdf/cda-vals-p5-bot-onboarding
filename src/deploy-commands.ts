@@ -1,10 +1,11 @@
 // Environement variables
-require('dotenv').config();
+import dotenv from 'dotenv';
+dotenv.config();
 
-const { REST, Routes } = require('discord.js');
+import { REST, Routes } from 'discord.js';
 // const { clientId, guildId, token } = require('./config.json');
-const fs = require('node:fs');
-const path = require('node:path');
+import fs from 'node:fs';
+import path from 'node:path';
 
 const commands = [];
 // Grab all the command folders from the commands directory you created earlier
@@ -28,7 +29,14 @@ for (const folder of commandFolders) {
 }
 
 // Construct and prepare an instance of the REST module
-const rest = new REST().setToken(process.env.DISCORD_TOKEN);
+if (!process.env.DISCORD_TOKEN) {
+	throw new Error('DISCORD_TOKEN environment variable is not set.');
+}
+const rest = new REST().setToken(process.env.DISCORD_TOKEN as string);
+
+if (!process.env.DISCORD_CLIENT_ID) {
+	throw new Error('DISCORD_CLIENT_ID environment variable is not set.');
+}
 
 // and deploy your commands!
 (async () => {
@@ -37,12 +45,12 @@ const rest = new REST().setToken(process.env.DISCORD_TOKEN);
 
 		// The put method is used to fully refresh all commands in the guild with the current set
 		const data = await rest.put(
-            Routes.applicationCommands(process.env.DISCORD_CLIENT_ID),
+			Routes.applicationCommands(process.env.DISCORD_CLIENT_ID as string),
 			{ body: commands },
 		);
 
-		console.log(`Successfully reloaded ${data.length} application (/) commands.`);
-	} catch (error) {
+		console.log(`Successfully reloaded ${(data as any[]).length} application (/) commands.`);
+	} catch (error: unknown) {
 		// And of course, make sure you catch and log any errors!
 		console.error(error);
 	}

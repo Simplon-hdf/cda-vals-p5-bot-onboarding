@@ -1,30 +1,37 @@
 // Environement variables
-require('dotenv').config();
+import dotenv from 'dotenv';
+dotenv.config();
 
 // File system and path modules to autoload commands
-const fs = require('node:fs');
-const path = require('node:path');
+import fs from 'node:fs';
+import path from 'node:path';
 
 // Require the necessary discord.js classes
-const { Client, Collection, Events, GatewayIntentBits, MessageFlags } = require('discord.js');
+import { Client, Collection, Events, GatewayIntentBits, MessageFlags, ChatInputCommandInteraction } from 'discord.js';
+
+// Extend the Client class to include a commands property
+interface Command {
+	data: { name: string };
+	execute: (interaction: ChatInputCommandInteraction) => Promise<void>;
+}
+
 
 // Create a new client instance
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
-
-client.commands = new Collection();
+const commands: Collection<string, Command> = new Collection();
 
 const foldersPath = path.join(__dirname, 'commands');
 const commandFolders = fs.readdirSync(foldersPath);
 
 for (const folder of commandFolders) {
 	const commandsPath = path.join(foldersPath, folder);
-	const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
-	for (const file of commandFiles) {commandFolders
+	const commandFiles = fs.readdirSync(commandsPath).filter((file: string) => file.endsWith('.ts'));
+	for (const file of commandFiles) {
 		const filePath = path.join(commandsPath, file);
 		const command = require(filePath);
 		// Set a new item in the Collection with the key as the command name and the value as the exported module
 		if ('data' in command && 'execute' in command) {
-			client.commands.set(command.data.name, command);
+			commands.set(command.data.name, command);
 		} else {
 			console.log(`[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`);
 		}
@@ -35,7 +42,7 @@ for (const folder of commandFolders) {
 client.on(Events.InteractionCreate, async interaction => {
 	if (!interaction.isChatInputCommand()) return;
 
-	const command = interaction.client.commands.get(interaction.commandName);
+	const command = commands.get(interaction.commandName);
 
 	if (!command) {
 		console.error(`No command matching ${interaction.commandName} was found.`);

@@ -1,11 +1,16 @@
 {
   "scripts": {
-    "start": "node index.js",
-    "dev": "nodemon index.js"
+    "start": "ts-node src/index.ts",
+    "dev": "ts-nodemon src/index.ts"
   },
-
   "dependencies": {
     "discord.js": "^14.21.0",
     "dotenv": "^17.2.1"
+  },
+  "devDependencies": {
+    "@types/node": "^24.1.0",
+    "@types/ws": "^8.18.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
   }
 }
