@@ -17,9 +17,13 @@ interface Command {
 
 
 // Create a new client instance
-const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] });
+
+// Create a new collection to store commands
 const commands: Collection<string, Command> = new Collection();
 
+
+// Auto-load commands from the commands directory and their subdirectories
 const foldersPath = path.join(__dirname, 'commands');
 const commandFolders = fs.readdirSync(foldersPath);
 
@@ -37,6 +41,23 @@ for (const folder of commandFolders) {
 		}
 	}
 }
+
+// Auto-load the event handlers
+// TODO: Maybe find a way to make autoload a function, to reuse it in the future
+const eventsPath = path.join(__dirname, "events");
+for (const file of fs.readdirSync(eventsPath).filter(f => f.endsWith(".ts") || f.endsWith(".js"))) {
+	console.log(`Loading event: ${file}`);
+	// Dynamically import the event file
+	const event = require(path.join(eventsPath, file));
+	if (event.once) {
+		console.log(`Registering once event: ${event.name}`);
+		client.once(event.type, (...args) => event.execute(...args, client));
+	} else {
+		console.log(`Registering event: ${event.name}`);
+		client.on(event.type, (...args) => event.execute(...args, client));
+	}
+}
+
 
 
 client.on(Events.InteractionCreate, async interaction => {
