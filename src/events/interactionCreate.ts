@@ -1,5 +1,6 @@
 import { Client, Events, Interaction } from "discord.js";
 import { identificationValidation } from "../handlers/identificationValidation";
+import { nameInput } from "../handlers/nameInput";
 
 export const type = Events.InteractionCreate;
 export const once = false;
@@ -9,4 +10,5 @@ export async function execute(interaction: Interaction, client: Client) {
 
     console.log(`Handling interaction relay for channel: ${interaction.channelId}`);
     await identificationValidation(interaction, client);
+    await nameInput(interaction, client);
 }

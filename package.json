@@ -1,7 +1,8 @@
 {
   "scripts": {
     "start": "ts-node src/index.ts",
-    "dev": "ts-nodemon src/index.ts"
+    "dev": "ts-nodemon src/index.ts",
+    "deploy_commands": "ts-node src/deploy-commands.ts"
   },
   "dependencies": {
     "discord.js": "^14.21.0",

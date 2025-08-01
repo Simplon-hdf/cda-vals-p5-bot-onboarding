@@ -26,11 +26,16 @@ const commands: Collection<string, Command> = new Collection();
 // Auto-load commands from the commands directory and their subdirectories
 const foldersPath = path.join(__dirname, 'commands');
 const commandFolders = fs.readdirSync(foldersPath);
+console.log("Loading commands in directory:", foldersPath);
 
 for (const folder of commandFolders) {
 	const commandsPath = path.join(foldersPath, folder);
 	const commandFiles = fs.readdirSync(commandsPath).filter((file: string) => file.endsWith('.ts'));
+	console.log(`> Loading commands from folder: ${folder}`);
+	
 	for (const file of commandFiles) {
+		console.log(`-> Loading command file: ${file}`);
+
 		const filePath = path.join(commandsPath, file);
 		const command = require(filePath);
 		// Set a new item in the Collection with the key as the command name and the value as the exported module
