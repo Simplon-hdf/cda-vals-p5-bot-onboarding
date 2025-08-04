@@ -12,8 +12,14 @@ export async function identificationValidation(interaction: Interaction, client:
 			ephemeral: true,
 		});
 
-        await interaction.message.delete(); // Original message
-        await wait.setTimeout(2000); // Wait for 2 seconds before deleting the reply message
+        const editedEmbed = interaction.message.embeds[0].toJSON();
+        editedEmbed.color = 0x00ff00;
+        interaction.message.edit(
+            { embeds: [editedEmbed] }
+        ); // Change the embed color to green
+
+        //await interaction.message.delete(); // Original message
+        await wait.setTimeout(10000); // Wait for 10 seconds before deleting the reply message
         await interaction.deleteReply();
 
 	} else if (interaction.customId === 'rejectIdentification') {
@@ -24,7 +30,7 @@ export async function identificationValidation(interaction: Interaction, client:
 		});
 
         await interaction.message.delete(); // Original message
-        await wait.setTimeout(2000); // Wait for 2 seconds before deleting the reply message
+        await wait.setTimeout(10000); // Wait for 10 seconds before deleting the reply message
         await interaction.deleteReply();
 	}
 }

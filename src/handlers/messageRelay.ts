@@ -17,11 +17,21 @@ export async function handleRelay(message: Message, client: Client) {
 	if (!targetChannel?.isTextBased()) return;
 
 
-	//await (targetChannel as TextChannel).send({ flags: MessageFlags.IsComponentsV2, components: [makeContainer(message)] });
-	await (targetChannel as TextChannel).send(makeEmbed(message));
+	// TODO: Change how the button is sent in the first place, need to talk it out
+	message.reply({
+		content: "**A CHANGER**: Voilà le bouton pour envoyer le formulaire de demande.",
+		components: [
+			new ActionRowBuilder<ButtonBuilder>().addComponents(
+				new ButtonBuilder()
+					.setCustomId("identificationButton")
+					.setLabel("Demande d'identification")
+					.setStyle(ButtonStyle.Primary)
+			)
+		]
+	});
 
 	// Delete the original message to prevent clutter
-	message.delete()
+	message.delete();
 }
 
 // TODO: Broken, needs fixing and to be adapted for future needs
