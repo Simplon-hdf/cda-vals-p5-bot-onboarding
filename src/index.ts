@@ -17,16 +17,30 @@ interface Command {
 
 
 // Create a new client instance
-const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+const client = new Client({ intents: [
+	GatewayIntentBits.Guilds,
+	GatewayIntentBits.GuildMessages,
+	GatewayIntentBits.MessageContent,
+	GatewayIntentBits.GuildMembers,
+] });
+
+// Create a new collection to store commands
 const commands: Collection<string, Command> = new Collection();
 
+
+// Auto-load commands from the commands directory and their subdirectories
 const foldersPath = path.join(__dirname, 'commands');
 const commandFolders = fs.readdirSync(foldersPath);
+console.log("Loading commands in directory:", foldersPath);
 
 for (const folder of commandFolders) {
 	const commandsPath = path.join(foldersPath, folder);
-	const commandFiles = fs.readdirSync(commandsPath).filter((file: string) => file.endsWith('.ts'));
+	const commandFiles = fs.readdirSync(commandsPath).filter((file: string) => file.endsWith('.ts') || file.endsWith('.js'));
+	console.log(`> Loading commands from folder: ${folder}`);
+	
 	for (const file of commandFiles) {
+		console.log(`-> Loading command file: ${file}`);
+
 		const filePath = path.join(commandsPath, file);
 		const command = require(filePath);
 		// Set a new item in the Collection with the key as the command name and the value as the exported module
@@ -37,6 +51,23 @@ for (const folder of commandFolders) {
 		}
 	}
 }
+
+// Auto-load the event handlers
+// TODO: Maybe find a way to make autoload a function, to reuse it in the future
+const eventsPath = path.join(__dirname, "events");
+for (const file of fs.readdirSync(eventsPath).filter(f => f.endsWith(".ts") || f.endsWith(".js"))) {
+	console.log(`Loading event: ${file}`);
+	// Dynamically import the event file
+	const event = require(path.join(eventsPath, file));
+	if (event.once) {
+		console.log(`Registering once event: ${event.name}`);
+		client.once(event.type, (...args) => event.execute(...args, client));
+	} else {
+		console.log(`Registering event: ${event.name}`);
+		client.on(event.type, (...args) => event.execute(...args, client));
+	}
+}
+
 
 
 client.on(Events.InteractionCreate, async interaction => {
