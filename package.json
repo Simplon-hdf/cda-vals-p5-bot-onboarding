@@ -1,7 +1,11 @@
 {
+  "name": "bot-onboarding",
+  "type": "commonjs",
+  "main": "dist/index.js",
   "scripts": {
-    "start": "ts-node src/index.ts",
-    "dev": "ts-nodemon src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsc --watch",
     "deploy_commands": "ts-node src/deploy-commands.ts"
   },
   "dependencies": {
