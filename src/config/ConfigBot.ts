@@ -1,5 +1,3 @@
-import { ConfigAPI } from "./ConfigAPI";
-
 export class ConfigBot {
     readonly configId: number;
 
