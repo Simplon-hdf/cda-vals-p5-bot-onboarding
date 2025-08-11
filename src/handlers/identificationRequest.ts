@@ -9,6 +9,7 @@ import {
     User,
     MessageFlags
 } from "discord.js";
+import { ConfigManager } from "../config/ConfigManager";
 
 export async function identificationRequest(interaction: Interaction, client: Client) {
     // Checking if the interaction token still exists
@@ -17,22 +18,22 @@ export async function identificationRequest(interaction: Interaction, client: Cl
     
     // Replying to the identification request modal submission
     if (interaction.isStringSelectMenu() && interaction.customId === 'identificationRequest') {
-        const staffIdentificationChannelId = process.env.RELAY_TARGET_CHANNEL;
+        const staffIdentificationChannelId = ConfigManager.config?.salonIdentificationStaffId;
         
         if (!staffIdentificationChannelId) {
-            console.error("RELAY_TARGET_CHANNEL environment variable is not set.");
+            console.error("[identificationRequest] Target channel for staff identification is not set in the configuration. (salonIdentificationStaffId)");
             return;
         }
 
         const guild = interaction.guild;
         if (!guild) {
-            console.error("Interaction is not in a guild.");
+            console.error("[identificationRequest] Interaction is not in a guild.");
             return;
         }
 
         const staffIdentificationChannel = await guild.channels.fetch(staffIdentificationChannelId);
         if (!staffIdentificationChannel || !staffIdentificationChannel.isTextBased()) {
-            console.error("Staff identification channel is not a text channel or does not exist.");
+            console.error("[identificationRequest] Staff identification channel is not a text channel or does not exist.");
             return;
         }
 
@@ -43,7 +44,7 @@ export async function identificationRequest(interaction: Interaction, client: Cl
             try {
                 botMember = await guild.members.fetchMe();
             } catch (err) {
-                console.error("Failed to fetch bot member:", err);
+                console.error("[identificationRequest] Failed to fetch bot member:", err);
                 return;
             }
         }
@@ -66,7 +67,7 @@ export async function identificationRequest(interaction: Interaction, client: Cl
                     break;
                 }
 
-            console.error(`[ERROR] ${consoleMessage}`);
+            console.error(`[ERROR] [identificationRequest] ${consoleMessage}`);
             interaction.reply({ content: reply, flags: [MessageFlags.Ephemeral] }).catch(console.error);
 
             return;
@@ -82,7 +83,7 @@ export async function identificationRequest(interaction: Interaction, client: Cl
 
     // Showing the modal when the button is clicked
     if (interaction.isButton() && interaction.customId === "identificationButton") {
-        console.log("Identification button clicked, showing menu.");
+        console.log("[identificationRequest] Identification button clicked, showing menu.");
         const promos = await getPromos();
 
         const options = promos.map(promo => ({
