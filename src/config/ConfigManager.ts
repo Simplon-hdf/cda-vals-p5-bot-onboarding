@@ -6,7 +6,15 @@ import { ConfigBot } from "./ConfigBot";
  * It provides methods to load, fetch, update, and overwrite configurations.
  */
 export class ConfigManager {
-    private static config: ConfigBot | undefined;
+    private static _config: ConfigBot | undefined;
+
+    /**
+     * Gets the current configuration.
+     * @returns The current configuration.
+     */
+    public static get config(): ConfigBot | undefined {
+        return ConfigManager._config;
+    }
 
     /**
      * Loads the bot configuration, and keeps it saved in ConfigManager.
@@ -15,8 +23,8 @@ export class ConfigManager {
      * @returns The loaded configuration.
      */
     static async loadConfig(configId?: number, verbose?: boolean): Promise<ConfigBot> {
-        this.config = await this.getConfig(configId, verbose);
-        return this.config;
+        this._config = await this.fetchConfig(configId, verbose);
+        return this._config;
     }
 
     /**
@@ -25,7 +33,7 @@ export class ConfigManager {
      * @param verbose Whether to log verbose output (optional).
      * @returns The fetched configuration.
      */
-    static async getConfig(configId?: number, verbose?: boolean): Promise<ConfigBot> {
+    static async fetchConfig(configId?: number, verbose?: boolean): Promise<ConfigBot> {
         if (verbose) { console.log(`[ConfigManager] Fetching config with ID ${configId}...`); }
 
         const configData = await ConfigAPI.fetchConfig(configId);
@@ -50,7 +58,7 @@ export class ConfigManager {
      */
     static async overwriteConfig(config?: ConfigBot, doLoad?: boolean, verbose?: boolean): Promise<ConfigBot> {
         if (config === undefined) {
-            config = this.config;
+            config = this._config;
             if (doLoad === undefined) {
                 doLoad = true;
             }
@@ -66,7 +74,7 @@ export class ConfigManager {
         if (verbose) { console.log(`[ConfigManager] Overwritten config with ID ${config.configId}:`, updatedData); }
         const overwrittenConfig = new ConfigBot(updatedData);
 
-        if (doLoad) { this.config = overwrittenConfig; }
+        if (doLoad) { this._config = overwrittenConfig; }
 
         return overwrittenConfig;
     }
@@ -79,7 +87,7 @@ export class ConfigManager {
      * @param verbose Whether to log verbose output (optional).
      * @returns The updated configuration.
      */
-    static async updateConfig(configId: number, body: object, verbose?: boolean): Promise<ConfigBot> {
+    static async updateConfig(configId: number, body: object, doLoad?: boolean, verbose?: boolean): Promise<ConfigBot> {
         if (!configId || !body) {
             throw new Error("Config ID and body are required for updating the config.");
         }
@@ -89,8 +97,11 @@ export class ConfigManager {
         const updatedData = await ConfigAPI.updateConfig(configId, body);
 
         if (verbose) { console.log(`[ConfigManager] Updated config with ID ${configId}:`, updatedData); }
+        const overwrittenConfig = new ConfigBot(updatedData);
 
-        return new ConfigBot(updatedData);
+        if (doLoad) { this._config = overwrittenConfig; }
+
+        return overwrittenConfig;
     }
 
 
@@ -101,7 +112,7 @@ export class ConfigManager {
      */
     static printState(config?: ConfigBot): void {
         if (config === undefined) {
-            config = this.config;
+            config = this._config;
         }
 
         if (!config) {
