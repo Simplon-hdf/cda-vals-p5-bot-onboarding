@@ -1,4 +1,8 @@
-import { ChannelType, SlashCommandBuilder } from "discord.js";
+import {
+    ChannelType,
+    MessageFlags,
+    SlashCommandBuilder
+} from "discord.js";
 import { ConfigManager } from "../../config/ConfigManager";
 
 export const data = new SlashCommandBuilder()
@@ -79,7 +83,7 @@ export async function execute(interaction: ChatInputCommandInteraction) {
 
     // Double check, only allow admins
     if (!interaction.memberPermissions?.has("Administrator")) {
-        await interaction.reply({ content: "Vous n'avez pas la permission d'éxecuter cette commande.", ephemeral: true });
+        await interaction.reply({ content: "Vous n'avez pas la permission d'éxecuter cette commande.", flags: [MessageFlags.Ephemeral], });
         return;
     }
 
@@ -122,10 +126,10 @@ export async function execute(interaction: ChatInputCommandInteraction) {
     const category = interaction.options.getChannel('template_category_id');
 
     if (category) {
-        if (category.type === ChannelType.GuildCategory) {
+        if (category.type === ChannelType.GuildCategory) { // The check shouldn't be necessary
             body.template_category_id = category.id;
         } else {
-            await interaction.reply({ content: "La catégorie entrée doit être une catégorie.", ephemeral: true });
+            await interaction.reply({ content: "La catégorie entrée doit être une catégorie.", flags: [MessageFlags.Ephemeral], });
             return;
         }
     }
@@ -133,7 +137,7 @@ export async function execute(interaction: ChatInputCommandInteraction) {
 
     // Actually update using ConfigManager
     if (Object.keys(body).length === 0) {
-        await interaction.reply({ content: "Aucun champ à mettre à jour n'a été fourni.", ephemeral: true });
+        await interaction.reply({ content: "Aucun champ à mettre à jour n'a été fourni.", flags: [MessageFlags.Ephemeral], });
         return;
     }
 
@@ -156,8 +160,8 @@ export async function execute(interaction: ChatInputCommandInteraction) {
             },
             true, // Reloads the configuration after updating
         );
-        await interaction.reply({ content: `Configuration mise à jour : ${Object.entries(body).map(([k, v]) => `${k} = ${v}`).join(', ')}`, ephemeral: true });
+        await interaction.reply({ content: `Configuration mise à jour : ${Object.entries(body).map(([k, v]) => `${k} = ${v}`).join(', ')}`, flags: [MessageFlags.Ephemeral], });
     } catch (err: any) {
-        await interaction.reply({ content: `Erreur lors de la mise à jour : ${err.message}`, ephemeral: true });
+        await interaction.reply({ content: `Erreur lors de la mise à jour : ${err.message}`, flags: [MessageFlags.Ephemeral], });
     }
 }
