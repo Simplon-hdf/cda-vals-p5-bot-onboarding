@@ -19,7 +19,7 @@ export async function handleRelay(message: Message, client: Client) {
 
 
 	// TODO: Change how the button is sent in the first place, need to talk it out
-	message.reply({
+	await message.reply({
 		content: "**A CHANGER**: Voilà le bouton pour envoyer le formulaire de demande.",
 		components: [
 			new ActionRowBuilder<ButtonBuilder>().addComponents(
