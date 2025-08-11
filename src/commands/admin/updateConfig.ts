@@ -1,4 +1,4 @@
-import { SlashCommandBuilder } from "discord.js";
+import { ChannelType, SlashCommandBuilder } from "discord.js";
 import { ConfigManager } from "../../config/ConfigManager";
 
 export const data = new SlashCommandBuilder()
@@ -50,7 +50,12 @@ export const data = new SlashCommandBuilder()
             .setDescription("Rôle attribué aux membres du staff.")
             .setRequired(false)
     )
-    // TODO: Add template category option 
+    .addChannelOption(option =>
+        option.setName('template_category_id')
+            .setDescription('La catégorie à utiliser pour copier les channels')
+            .addChannelTypes(ChannelType.GuildCategory) // Show the categories in the dropdown
+            .setRequired(false)
+    )
     .addRoleOption(option =>
         option.setName("template_apprenant_role_id")
             .setDescription("Rôle modèle pour les permissions des apprenants dans les nouvelles promotions.")
@@ -113,6 +118,19 @@ export async function execute(interaction: ChatInputCommandInteraction) {
         }
     }
 
+    // Template Category
+    const category = interaction.options.getChannel('template_category_id');
+
+    if (category) {
+        if (category.type === ChannelType.GuildCategory) {
+            body.template_category_id = category.id;
+        } else {
+            await interaction.reply({ content: "La catégorie entrée doit être une catégorie.", ephemeral: true });
+            return;
+        }
+    }
+
+
     // Actually update using ConfigManager
     if (Object.keys(body).length === 0) {
         await interaction.reply({ content: "Aucun champ à mettre à jour n'a été fourni.", ephemeral: true });
@@ -131,6 +149,7 @@ export async function execute(interaction: ChatInputCommandInteraction) {
                 alumniRoleId: body.alumni_role_id,
                 formateurRoleId: body.formateur_role_id,
                 staffRoleId: body.staff_role_id,
+                templateCategoryId: body.template_category_id,
                 templateApprenantRoleId: body.template_apprenant_role_id,
                 templateAlumniRoleId: body.template_alumni_role_id,
                 templateFormateurRoleId: body.template_formateur_role_id,
