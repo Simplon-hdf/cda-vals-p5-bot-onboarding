@@ -134,7 +134,8 @@ export async function execute(interaction: ChatInputCommandInteraction) {
                 templateApprenantRoleId: body.template_apprenant_role_id,
                 templateAlumniRoleId: body.template_alumni_role_id,
                 templateFormateurRoleId: body.template_formateur_role_id,
-            }
+            },
+            true, // Reloads the configuration after updating
         );
         await interaction.reply({ content: `Configuration mise à jour : ${Object.entries(body).map(([k, v]) => `${k} = ${v}`).join(', ')}`, ephemeral: true });
     } catch (err: any) {
