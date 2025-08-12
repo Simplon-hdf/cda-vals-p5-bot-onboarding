@@ -1,24 +1,25 @@
 import { Message, Client, TextChannel, EmbedBuilder, ContainerBuilder, ButtonStyle, MessageFlags, ActionRowBuilder, ButtonBuilder } from "discord.js";
+import { ConfigManager } from "../config/ConfigManager";
 
 export async function handleRelay(message: Message, client: Client) {
-	const fromChannelId = process.env.RELAY_SOURCE_CHANNEL;
-	const toChannelId = process.env.RELAY_TARGET_CHANNEL;
+	const fromChannelId = ConfigManager.config?.salonIdentificationId;
+	const toChannelId = ConfigManager.config?.salonIdentificationStaffId;
 
 	if (!fromChannelId || !toChannelId) {
-		console.error("RELAY_SOURCE or RELAY_DEST environment variables are not set.");
+		console.error("[messageRelay] Source or destination channel ID is not set. (salonIdentificationId or salonIdentificationStaffId)");
 		return;
 	}
 
 	if (message.channel.id !== fromChannelId || message.author.bot) return;
 
-    console.log(`messageRelay> Message received: ${message.content} from ${message.author.tag}`);
+    console.log(`[messageRelay] Message received: ${message.content} from ${message.author.tag}`);
 
 	const targetChannel = await client.channels.fetch(toChannelId);
 	if (!targetChannel?.isTextBased()) return;
 
 
 	// TODO: Change how the button is sent in the first place, need to talk it out
-	message.reply({
+	await message.reply({
 		content: "**A CHANGER**: Voilà le bouton pour envoyer le formulaire de demande.",
 		components: [
 			new ActionRowBuilder<ButtonBuilder>().addComponents(
