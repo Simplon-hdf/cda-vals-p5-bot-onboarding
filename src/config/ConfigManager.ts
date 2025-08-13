@@ -1,4 +1,4 @@
-import { ConfigAPI } from "./ConfigAPI";
+import { ConfigAPI } from "../api/ConfigAPI";
 import { ConfigBot } from "./ConfigBot";
 
 /**
@@ -36,7 +36,7 @@ export class ConfigManager {
     static async fetchConfig(configId?: number, verbose?: boolean): Promise<ConfigBot> {
         if (verbose) { console.log(`[ConfigManager] Fetching config with ID ${configId}...`); }
 
-        const configData = await ConfigAPI.fetchConfig(configId);
+        const configData = await new ConfigAPI().fetchConfig(configId);
 
         if (verbose) { console.log(`[ConfigManager] Fetched config with ID ${configId}:`, configData); }
 
@@ -69,7 +69,7 @@ export class ConfigManager {
         }
 
         if (verbose) { console.log(`[ConfigManager] Overwriting config with ID ${config.configId}:`, config); }
-        const updatedData = await ConfigAPI.overwriteConfig(config);
+        const updatedData = await new ConfigAPI().overwriteConfig(config);
 
         if (verbose) { console.log(`[ConfigManager] Overwritten config with ID ${config.configId}:`, updatedData); }
         const overwrittenConfig = new ConfigBot(updatedData);
@@ -94,7 +94,7 @@ export class ConfigManager {
 
         if (verbose) { console.log(`[ConfigManager] Updating config with ID ${configId} with body:`, body); }
 
-        const updatedData = await ConfigAPI.updateConfig(configId, body);
+        const updatedData = await new ConfigAPI().updateConfig(configId, body);
 
         if (verbose) { console.log(`[ConfigManager] Updated config with ID ${configId}:`, updatedData); }
         const overwrittenConfig = new ConfigBot(updatedData);
